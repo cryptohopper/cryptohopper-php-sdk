@@ -4,3 +4,10 @@ parameters:
         - src
         - tests
     treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        # GuzzleHttp\Middleware::history() takes `array|ArrayAccess &$container`
+        # by reference; PHPStan 2.0 rejects our narrower shape type. The shape
+        # is still enforced at runtime via last() — this is test-only code.
+        -
+            message: '#does not accept array\|ArrayAccess<int, array>\.#'
+            path: tests/MockBackend.php

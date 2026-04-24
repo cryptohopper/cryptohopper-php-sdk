@@ -22,11 +22,11 @@ final class MockBackend
     public GuzzleClient $guzzle;
     /**
      * Entries are appended by GuzzleHttp\Middleware::history, which types its
-     * container parameter as `array|ArrayAccess`. We keep the wider `array`
-     * type on this property (instead of a `list` shape) so PHPStan 2.0
-     * accepts the reference passing.
+     * container parameter as `array|ArrayAccess`. We keep a narrower shape
+     * for use by assertions — phpstan.neon silences the reference-width
+     * mismatch that PHPStan 2.0 otherwise reports on this file.
      *
-     * @var array<int, array{request: RequestInterface, options: array<string, mixed>}>
+     * @var list<array{request: RequestInterface, options: array<string, mixed>}>
      */
     public array $history = [];
     public Client $client;
