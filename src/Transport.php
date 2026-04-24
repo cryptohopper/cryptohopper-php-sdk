@@ -117,6 +117,9 @@ final class Transport
         return $this->handleResponse($response);
     }
 
+    /**
+     * @param array<string, mixed>|null $query
+     */
     private function buildUrl(string $path, ?array $query): string
     {
         $full = str_starts_with($path, '/') ? $path : "/{$path}";
