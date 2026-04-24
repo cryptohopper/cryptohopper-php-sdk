@@ -1,8 +1,10 @@
 # Cryptohopper PHP SDK
 
-[![Latest version](https://img.shields.io/packagist/v/cryptohopper/sdk?include_prereleases)](https://packagist.org/packages/cryptohopper/sdk)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![PHP version](https://img.shields.io/packagist/php-v/cryptohopper/sdk)](composer.json)
+[![Packagist](https://img.shields.io/packagist/v/cryptohopper/sdk?logo=packagist&logoColor=white&include_prereleases)](https://packagist.org/packages/cryptohopper/sdk)
+[![Packagist downloads](https://img.shields.io/packagist/dt/cryptohopper/sdk?logo=packagist&logoColor=white&label=downloads)](https://packagist.org/packages/cryptohopper/sdk)
+[![PHP version](https://img.shields.io/packagist/php-v/cryptohopper/sdk?logo=php&logoColor=white)](composer.json)
+[![CI](https://github.com/cryptohopper/cryptohopper-php-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/cryptohopper/cryptohopper-php-sdk/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/github/license/cryptohopper/cryptohopper-php-sdk?color=blue)](LICENSE)
 
 Official PHP SDK for the Cryptohopper API — synchronous client, typed exceptions, auto-retry on 429, full coverage of all 18 public API domains.
 
