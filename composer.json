@@ -1,0 +1,51 @@
+{
+    "name": "cryptohopper/sdk",
+    "description": "Official PHP SDK for the Cryptohopper API. Typed exceptions, auto-retry on 429, full coverage of all 18 public API domains.",
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://www.cryptohopper.com",
+    "keywords": ["cryptohopper", "trading", "crypto", "api", "sdk"],
+    "authors": [
+        {
+            "name": "Cryptohopper",
+            "email": "info@cryptohopper.com",
+            "homepage": "https://www.cryptohopper.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/cryptohopper/cryptohopper-php-sdk/issues",
+        "source": "https://github.com/cryptohopper/cryptohopper-php-sdk",
+        "docs": "https://docs.cryptohopper.com"
+    },
+    "require": {
+        "php": "^8.1",
+        "ext-json": "*",
+        "guzzlehttp/guzzle": "^7.8"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5",
+        "phpstan/phpstan": "^1.12",
+        "friendsofphp/php-cs-fixer": "^3.64"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cryptohopper\\Sdk\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Cryptohopper\\Sdk\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "analyse": "phpstan analyse",
+        "lint": "php-cs-fixer fix --dry-run --diff",
+        "format": "php-cs-fixer fix"
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "minimum-stability": "stable"
+}

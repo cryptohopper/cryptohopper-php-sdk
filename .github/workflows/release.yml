@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  push:
+    tags: ['php-v*']
+
+permissions:
+  contents: write
+
+jobs:
+  verify-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Tag parity check
+        run: |
+          TAG_NAME="${GITHUB_REF_NAME#php-v}"
+          FILE_VERSION=$(php -r "require 'src/Version.php'; echo Cryptohopper\Sdk\Version::VERSION;")
+          echo "Tag name strips to: ${TAG_NAME}"
+          echo "Version.php constant: ${FILE_VERSION}"
+          if [ "${TAG_NAME}" != "${FILE_VERSION}" ]; then
+            echo "Tag and Version.php disagree — aborting release."
+            exit 1
+          fi
+
+      - name: Run PHPUnit
+        run: composer test
+
+      - name: Determine prerelease flag
+        id: prerelease
+        run: |
+          if [[ "${GITHUB_REF_NAME}" =~ -(alpha|beta|rc) ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          prerelease: ${{ steps.prerelease.outputs.prerelease }}
+          generate_release_notes: true
+          body: |
+            ## Installation
+
+            ```bash
+            composer require cryptohopper/sdk:${GITHUB_REF_NAME#php-v}
+            ```
+
+            Packagist auto-syncs from this repo's tags. If the new version does not
+            appear on [packagist.org](https://packagist.org/packages/cryptohopper/sdk)
+            within a few minutes, trigger a manual update from the Packagist dashboard.
+
+            See [CHANGELOG.md](https://github.com/cryptohopper/cryptohopper-php-sdk/blob/main/CHANGELOG.md) for what changed.
