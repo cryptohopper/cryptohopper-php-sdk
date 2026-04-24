@@ -1,8 +1,12 @@
 name: Release
 
+# NOTE: this repo uses bare `v*` tags — not the `php-v*` pattern the other
+# Cryptohopper SDK repos use. Reason: Packagist reads Git tags directly as the
+# version string and only recognises tags matching SemVer (`X.Y.Z` or `vX.Y.Z`),
+# not prefixed tags. Using `v*` here matches the Go SDK convention.
 on:
   push:
-    tags: ['php-v*']
+    tags: ['v*']
 
 permissions:
   contents: write
@@ -28,7 +32,7 @@ jobs:
 
       - name: Tag parity check
         run: |
-          TAG_NAME="${GITHUB_REF_NAME#php-v}"
+          TAG_NAME="${GITHUB_REF_NAME#v}"
           FILE_VERSION=$(php -r "require 'src/Version.php'; echo Cryptohopper\Sdk\Version::VERSION;")
           echo "Tag name strips to: ${TAG_NAME}"
           echo "Version.php constant: ${FILE_VERSION}"
@@ -59,7 +63,7 @@ jobs:
             ## Installation
 
             ```bash
-            composer require cryptohopper/sdk:${GITHUB_REF_NAME#php-v}
+            composer require cryptohopper/sdk:${GITHUB_REF_NAME#v}
             ```
 
             Packagist auto-syncs from this repo's tags. If the new version does not
