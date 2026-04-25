@@ -90,9 +90,23 @@ final class Transport
                 ['timeout' => $this->timeout, 'http_errors' => false],
             );
         } catch (ConnectException $e) {
+            // Guzzle's ConnectException is the umbrella for all cURL transport
+            // failures, *including* timeouts (CURLE_OPERATION_TIMEDOUT,
+            // errno 28). Discriminate so callers see the correct error code:
+            // a TIMEOUT is recoverable by raising the timeout, a NETWORK_ERROR
+            // is not.
+            $context = $e->getHandlerContext();
+            $errno   = (isset($context['errno']) && is_int($context['errno'])) ? $context['errno'] : 0;
+            $msgLower  = strtolower($e->getMessage());
+            $isTimeout = $errno === 28
+                || str_contains($msgLower, 'timed out')
+                || str_contains($msgLower, 'timeout');
+
             throw new CryptohopperException(
-                'NETWORK_ERROR',
-                "Could not reach {$this->baseUrl} ({$e->getMessage()})",
+                $isTimeout ? 'TIMEOUT' : 'NETWORK_ERROR',
+                $isTimeout
+                    ? "Request timed out after {$this->timeout}s ({$e->getMessage()})"
+                    : "Could not reach {$this->baseUrl} ({$e->getMessage()})",
                 0,
             );
         } catch (RequestException $e) {

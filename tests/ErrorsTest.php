@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace Cryptohopper\Sdk\Tests;
 
+use Cryptohopper\Sdk\Client;
 use Cryptohopper\Sdk\Exceptions\CryptohopperException;
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 
@@ -97,6 +102,68 @@ final class ErrorsTest extends TestCase
         } catch (CryptohopperException $e) {
             self::assertSame('SERVER_ERROR', $e->getErrorCode());
             self::assertSame(500, $e->getStatus());
+        }
+    }
+
+    /**
+     * Guzzle wraps cURL's CURLE_OPERATION_TIMEDOUT (errno 28) in a
+     * ConnectException, not a separate timeout exception type. The transport
+     * must inspect the handler context to discriminate TIMEOUT from
+     * NETWORK_ERROR — without this discrimination, every timeout was being
+     * reported as a generic NETWORK_ERROR.
+     */
+    public function testConnectExceptionWithCurlTimeoutErrnoMapsToTimeout(): void
+    {
+        $handler = new MockHandler([
+            new ConnectException(
+                'cURL error 28: Operation timed out after 30000 milliseconds',
+                new Request('GET', 'https://api.cryptohopper.com/v1/user/get'),
+                null,
+                ['errno' => 28, 'error' => 'Operation timed out'],
+            ),
+        ]);
+        $client = new Client(
+            apiKey: 'test-token',
+            maxRetries: 0,
+            httpClient: new GuzzleClient(['handler' => $handler, 'http_errors' => false]),
+        );
+
+        try {
+            $client->user->get();
+            self::fail('Expected CryptohopperException');
+        } catch (CryptohopperException $e) {
+            self::assertSame('TIMEOUT', $e->getErrorCode());
+            self::assertSame(0, $e->getStatus());
+        }
+    }
+
+    /**
+     * A non-timeout ConnectException — connection refused, DNS failure, etc.
+     * — must continue to surface as NETWORK_ERROR so callers can distinguish
+     * recoverable timeouts from genuine connectivity problems.
+     */
+    public function testNonTimeoutConnectExceptionMapsToNetworkError(): void
+    {
+        $handler = new MockHandler([
+            new ConnectException(
+                'cURL error 7: Failed to connect to host',
+                new Request('GET', 'https://api.cryptohopper.com/v1/user/get'),
+                null,
+                ['errno' => 7, 'error' => 'Couldn\'t connect to server'],
+            ),
+        ]);
+        $client = new Client(
+            apiKey: 'test-token',
+            maxRetries: 0,
+            httpClient: new GuzzleClient(['handler' => $handler, 'http_errors' => false]),
+        );
+
+        try {
+            $client->user->get();
+            self::fail('Expected CryptohopperException');
+        } catch (CryptohopperException $e) {
+            self::assertSame('NETWORK_ERROR', $e->getErrorCode());
+            self::assertSame(0, $e->getStatus());
         }
     }
 }
