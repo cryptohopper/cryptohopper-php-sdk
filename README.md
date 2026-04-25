@@ -8,6 +8,8 @@
 
 Official PHP SDK for the Cryptohopper API — synchronous client, typed exceptions, auto-retry on 429, full coverage of all 18 public API domains.
 
+**Deeper docs:** [Getting Started](docs/Getting-Started.md) · [Authentication](docs/Authentication.md) · [Error Handling](docs/Error-Handling.md) · [Rate Limits](docs/Rate-Limits.md)
+
 ## Requirements
 
 - PHP 8.1+
