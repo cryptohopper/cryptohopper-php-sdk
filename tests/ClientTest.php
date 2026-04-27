@@ -17,14 +17,15 @@ final class ClientTest extends TestCase
         new Client(apiKey: '');
     }
 
-    public function testSendsBearerTokenAndUserAgent(): void
+    public function testSendsAccessTokenAndUserAgent(): void
     {
         $backend = new MockBackend([new Response(200, [], '{"data":{"id":1}}')]);
 
         $backend->client->user->get();
 
         $req = $backend->last();
-        self::assertSame('Bearer test-token', $req->getHeaderLine('Authorization'));
+        self::assertSame('test-token', $req->getHeaderLine('access-token'));
+        self::assertSame('', $req->getHeaderLine('Authorization'), 'Authorization header must NOT be set on v1 API calls');
         self::assertStringStartsWith('cryptohopper-sdk-php/' . Version::VERSION, $req->getHeaderLine('User-Agent'));
         self::assertSame('application/json', $req->getHeaderLine('Accept'));
         self::assertSame('', $req->getHeaderLine('x-api-app-key'));
