@@ -153,7 +153,7 @@ catch (CryptohopperException $e) {
 
 **`cURL error 60: SSL certificate problem`** — corporate proxy or self-signed root CA in the chain. Don't disable verification globally; supply a custom Guzzle client with `verify` pointing at the right CA bundle (see "Bringing your own HTTP client" above).
 
-**`cURL error 28: Operation timed out`** — your server's outbound connection to Cryptohopper is slow. The SDK now classifies this as `TIMEOUT` (was `NETWORK_ERROR` before iter-16). Retry with a longer `timeout:` if the slowness is legitimate, or check your firewall / outbound NAT.
+**`cURL error 28: Operation timed out`** — your server's outbound connection to Cryptohopper is slow. The SDK classifies this as `TIMEOUT` (errno 28 specifically — non-timeout cURL errors stay as `NETWORK_ERROR`). Retry with a longer `timeout:` if the slowness is legitimate, or check your firewall / outbound NAT.
 
 **Memory exhaustion on huge JSON responses** — the SDK reads the entire body into memory via `(string) $response->getBody()`. The Cryptohopper API doesn't return responses large enough to matter (no streaming endpoints), but if you hit a wall, supply a custom Guzzle client with stream-parsing middleware.
 
