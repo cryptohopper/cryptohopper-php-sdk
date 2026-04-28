@@ -156,9 +156,12 @@ final class Transport
     private function buildHeaders(bool $hasBody): array
     {
         $headers = [
-            'Authorization' => "Bearer {$this->apiKey}",
-            'Accept'        => 'application/json',
-            'User-Agent'    => $this->buildUserAgent(),
+            // Cryptohopper Public API v1 uses `access-token: <token>`, not the
+            // OAuth2-conventional `Authorization: Bearer <token>`. The gateway
+            // in front of the API rejects Bearer with a SigV4 parse error.
+            'access-token' => $this->apiKey,
+            'Accept'       => 'application/json',
+            'User-Agent'   => $this->buildUserAgent(),
         ];
         if ($this->appKey !== null && $this->appKey !== '') {
             $headers['x-api-app-key'] = $this->appKey;
